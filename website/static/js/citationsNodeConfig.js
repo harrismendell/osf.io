@@ -12,11 +12,11 @@ ko.punches.enableAll();
 /**
  * Knockout view model for citations node settings widget.
  */
-var CitationsFolderPickerViewModel = function(name, url, selector, folderPicker) {
+var CitationsFolderPickerViewModel = function(addonName, url, selector, folderPicker) {
     var self = this;
 
     self.url = url;
-    self.properName = name.charAt(0).toUpperCase() + name.slice(1);
+    self.addonName = addonName;
     self.selector = selector;
     // CSS selector for the folder picker div
     self.folderPicker = folderPicker;
@@ -57,35 +57,35 @@ var CitationsFolderPickerViewModel = function(name, url, selector, folderPicker)
 
     self.messages = {
         INVALID_CRED_OWNER: ko.pureComputed(function() {
-            return 'Could not retrieve ' + self.properName + ' settings at ' +
-                'this time. The ' + self.properName + ' addon credentials may no longer be valid.' +
-                ' Try deauthorizing and reauthorizing ' + self.properName + ' on your <a href="' +
+            return 'Could not retrieve ' + self.addonName + ' settings at ' +
+                'this time. The ' + self.addonName + ' addon credentials may no longer be valid.' +
+                ' Try deauthorizing and reauthorizing ' + self.addonName + ' on your <a href="' +
                 self.urls().settings + '">account settings page</a>.';
         }),
         INVALID_CRED_NOT_OWNER: ko.pureComputed(function() {
-            return 'Could not retrieve ' + self.properName + ' settings at ' +
-                'this time. The ' + self.properName + ' addon credentials may no longer be valid.' +
+            return 'Could not retrieve ' + self.addonName + ' settings at ' +
+                'this time. The ' + self.addonName + ' addon credentials may no longer be valid.' +
                 ' Contact ' + self.ownerName() + ' to verify.';
         }),
         CANT_RETRIEVE_SETTINGS: ko.pureComputed(function() {
-            return 'Could not retrieve ' + self.properName + ' settings at ' +
+            return 'Could not retrieve ' + self.addonName + ' settings at ' +
                 'this time. Please refresh ' +
                 'the page. If the problem persists, email ' +
                 '<a href="mailto:support@osf.io">support@osf.io</a>.';
         }),
         UPDATE_ACCOUNTS_ERROR: ko.pureComputed(function() {
-            return 'Could not retrieve ' + self.properName + ' account list at ' +
+            return 'Could not retrieve ' + self.addonName + ' account list at ' +
                 'this time. Please refresh the page. If the problem persists, email ' +
                 '<a href="mailto:support@osf.io">support@osf.io</a>.';
         }),
         DEAUTHORIZE_SUCCESS: ko.pureComputed(function() {
-            return 'Deauthorized ' + self.properName + '.';
+            return 'Deauthorized ' + self.addonName + '.';
         }),
         DEAUTHORIZE_FAIL: ko.pureComputed(function() {
             return 'Could not deauthorize because of an error. Please try again later.';
         }),
         CONNECT_ACCOUNT_SUCCESS: ko.pureComputed(function() {
-            return 'Successfully created a ' + self.properName + ' Access Token';
+            return 'Successfully created a ' + self.addonName + ' Access Token';
         }),
         SUBMIT_SETTINGS_SUCCESS: ko.pureComputed(function() {
             var overviewURL = window.contextVars.node.urls.web;
@@ -96,16 +96,16 @@ var CitationsFolderPickerViewModel = function(name, url, selector, folderPicker)
             return 'Could not change settings. Please try again later.';
         }),
         CONFIRM_DEAUTH: ko.pureComputed(function() {
-            return 'Are you sure you want to remove this ' + self.properName + ' authorization?';
+            return 'Are you sure you want to remove this ' + self.addonName + ' authorization?';
         }),
         CONFIRM_AUTH: ko.pureComputed(function() {
-            return 'Are you sure you want to authorize this project with your ' + self.properName + ' access token?';
+            return 'Are you sure you want to authorize this project with your ' + self.addonName + ' access token?';
         }),
         TOKEN_IMPORT_ERROR: ko.pureComputed(function() {
             return 'Error occurred while importing access token.';
-        }),
+        }),        
         CONNECT_ERROR: ko.pureComputed(function() {
-            return 'Could not connect to ' + self.properName + ' at this time. Please try again later.';
+            return 'Could not connect to ' + self.addonName + ' at this time. Please try again later.';
         })
     };
 
@@ -205,7 +205,7 @@ CitationsFolderPickerViewModel.prototype.fetchFromServer = function() {
     });
     request.fail(function(xhr, textStatus, error) {
         self.changeMessage(self.messages.CANT_RETRIEVE_SETTINGS(), 'text-warning');
-        Raven.captureMessage('Could not GET ' + self.properName + 'settings', {
+        Raven.captureMessage('Could not GET ' + self.addonName + 'settings', {
             url: self.url,
             textStatus: textStatus,
             error: error
@@ -228,7 +228,7 @@ CitationsFolderPickerViewModel.prototype.updateAccounts = function(callback) {
     });
     request.fail(function(xhr, textStatus, error) {
         self.changeMessage(self.messages.UPDATE_ACCOUNTS_ERROR(), 'text-warning');
-        Raven.captureMessage('Could not GET ' + self.properName + ' accounts for user', {
+        Raven.captureMessage('Could not GET ' + self.addonName + ' accounts for user', {
             url: self.url,
             textStatus: textStatus,
             error: error
@@ -274,7 +274,7 @@ CitationsFolderPickerViewModel.prototype.submitSettings = function() {
 
     function onSubmitSuccess(response) {
         self.folder(self.selected().name);
-        self.changeMessage(self.messages.SUBMIT_SETTINGS_SUCCESS(), 'text-success', 5000);
+        self.changeMessage(self.messages.SUBMIT_SETTINGS_SUCCESS(), 'text-success');
         self.cancelSelection();
     }
 
@@ -323,7 +323,7 @@ CitationsFolderPickerViewModel.prototype.deauthorize = function() {
 
         request.fail(function(xhr, textStatus, error) {
             self.changeMessage(self.messages.DEAUTHORIZE_FAIL(), 'text-danger');
-            Raven.captureMessage('Could not deauthorize ' + self.properName + ' account from node', {
+            Raven.captureMessage('Could not deauthorize ' + self.addonName + ' account from node', {
                 url: self.urls().deauthorize,
                 textStatus: textStatus,
                 error: error
@@ -334,7 +334,7 @@ CitationsFolderPickerViewModel.prototype.deauthorize = function() {
     }
 
     bootbox.confirm({
-        title: 'Deauthorize ' + self.properName + '?',
+        title: 'Deauthorize ' + self.addonName + '?',
         message: self.messages.CONFIRM_DEAUTH(),
         callback: function(confirmed) {
             if (confirmed) {
@@ -360,7 +360,7 @@ CitationsFolderPickerViewModel.prototype.onImportError = function(xhr, textStatu
     var self = this;
 
     self.changeMessage(self.messages.TOKEN_IMPORT_ERROR(), 'text-danger');
-    Raven.captureMessage('Failed to import ' + self.properName + ' access token', {
+    Raven.captureMessage('Failed to import ' + self.addonName + ' access token', {
         url: self.urls().importAuth,
         textStatus: textStatus,
         error: error
@@ -376,7 +376,7 @@ CitationsFolderPickerViewModel.prototype.importAuth = function() {
     self.updateAccounts(function() {
         if (self.accounts().length > 1) {
             bootbox.prompt({
-                title: 'Choose ' + self.properName + ' Access Token to Import',
+                title: 'Choose ' + self.addonName + ' Access Token to Import',
                 inputType: 'select',
                 inputOptions: ko.utils.arrayMap(
                     self.accounts(),
@@ -392,7 +392,7 @@ CitationsFolderPickerViewModel.prototype.importAuth = function() {
             });
         } else {
             bootbox.confirm({
-                title: 'Import ' + self.properName + ' Access Token?',
+                title: 'Import ' + self.addonName + ' Access Token?',
                 message: self.messages.CONFIRM_AUTH(),
                 callback: function(confirmed) {
                     if (confirmed) {
@@ -452,7 +452,7 @@ CitationsFolderPickerViewModel.prototype.activatePicker = function() {
                 error: function(xhr, textStatus, error) {
                     self.loading(false);
                     self.changeMessage(self.messages.CONNECT_ERROR(), 'text-warning');
-                    Raven.captureMessage('Could not GET get ' + self.properName + ' contents.', {
+                    Raven.captureMessage('Could not GET get ' + self.addonName + ' contents.', {
                         textStatus: textStatus,
                         error: error
                     });
@@ -484,4 +484,13 @@ CitationsFolderPickerViewModel.prototype.togglePicker = function() {
     }
 };
 
-module.exports = CitationsFolderPickerViewModel;
+// Public API
+function CitationsNodeConfig(addonName, selector, url, folderPicker) {
+    var self = this;
+    self.url = url;
+    self.folderPicker = folderPicker;
+    self.viewModel = new CitationsFolderPickerViewModel(addonName, url, selector, folderPicker);
+    $osf.applyBindings(self.viewModel, selector);
+}
+
+module.exports = CitationsNodeConfig;

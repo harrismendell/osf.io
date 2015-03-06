@@ -1,5 +1,5 @@
-var MendeleyNodeConfig = require('./mendeleyNodeConfig.js');
+var CitationsNodeConfig = require('citationsNodeConfig');
 require('./node-cfg.css');
 
 var url = window.contextVars.node.urls.api + 'mendeley/settings/';
-new MendeleyNodeConfig('#mendeleyScope', url, '#mendeleyGrid');
+new CitationsNodeConfig('Mendeley', '#mendeleyScope', url, '#mendeleyGrid');

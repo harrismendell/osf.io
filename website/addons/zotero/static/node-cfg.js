@@ -1,5 +1,5 @@
-var ZoteroNodeConfig = require('./zoteroNodeConfig.js');
+var CitationsNodeConfig = require('citationsNodeConfig');
 require('./node-cfg.css');
 
 var url = window.contextVars.node.urls.api + 'zotero/settings/';
-new ZoteroNodeConfig('#zoteroScope', url, '#zoteroGrid');;
+new CitationsNodeConfig('Zotero', '#zoteroScope', url, '#zoteroGrid');

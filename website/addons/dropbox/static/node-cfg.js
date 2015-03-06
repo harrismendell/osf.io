@@ -1,4 +1,7 @@
-var DropboxNodeConfig = require('./dropboxNodeConfig.js');
+'use strict';
+
+require('./dropbox.css');
+var AddonNodeConfig = require('addonNodeConfig');
 
 var url = window.contextVars.node.urls.api + 'dropbox/config/';
-new DropboxNodeConfig('#dropboxScope', url, '#myDropboxGrid');
+new AddonNodeConfig('Dropbox', '#dropboxScope', url, '#dropboxGrid');
