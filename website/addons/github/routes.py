@@ -20,6 +20,29 @@ settings_routes = {
 
         Rule(
             [
+                '/project/<pid>/github/settings/',
+                '/project/<pid>/node/<nid>/github/settings/',
+            ],
+            'get',
+            views.config.github_get_config,
+            json_renderer,
+        ),
+
+        Rule(
+            [
+                '/project/<pid>/github/settings/',
+                '/project/<pid>/node/<nid>/github/settings/',
+                '/project/<pid>/github/config/',
+                '/project/<pid>/node/<nid>/github/config/',
+            ],
+            'delete',
+            views.config.github_remove_node_settings,
+            json_renderer,
+        ),
+
+
+        Rule(
+            [
                 '/project/<pid>/github/tarball/',
                 '/project/<pid>/node/<nid>/github/tarball/',
             ],

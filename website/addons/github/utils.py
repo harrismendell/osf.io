@@ -9,6 +9,7 @@ from framework.exceptions import HTTPError
 from website.addons.base.exceptions import HookError
 
 from website.addons.github.api import GitHub
+from website.util import rubeus, web_url_for
 
 MESSAGE_BASE = 'via the Open Science Framework'
 MESSAGES = {
@@ -131,3 +132,22 @@ def check_permissions(node_settings, auth, connection, branch, sha=None, repo=No
     )
 
     return can_edit
+
+def serialize_urls(node_addon, user):
+
+    node = node_addon.owner
+    user_settings = node_addon.user_settings
+
+    result = {
+        'createRepo': node.api_url_for('github_create_repo'),
+        'importAuth': node.api_url_for('github_add_user_auth'),
+        'createAuth': node.api_url_for('github_add_user_auth'),
+        'deauthorize': node.api_url_for('github_oauth_deauthorize_node'),
+        # 'bucketList': node.api_url_for('s3_bucket_list'),
+        'setRepo': node.api_url_for('github_set_config'),
+        'settings': web_url_for('user_addons'),
+    }
+    if user_settings:
+        result['owner'] = web_url_for('profile_view_id',
+                                      uid=user_settings.owner._primary_key)
+    return result

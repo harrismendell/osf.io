@@ -275,9 +275,19 @@ class AddonGitHubNodeSettings(AddonNodeSettingsBase):
     # TODO: Delete me and replace with serialize_settings / Knockout
     def to_json(self, user):
         rv = super(AddonGitHubNodeSettings, self).to_json(user)
+
         user_settings = user.get_addon('github')
+
         rv.update({
+            'repo': self.repo or '',
+            'has_repo': self.repo is not None,
             'user_has_auth': user_settings and user_settings.has_auth,
+            'node_has_auth': False,
+            'user_is_owner': (
+                (self.user_settings and self.user_settings.owner == user) or False
+            ),
+            'owner': None,
+            'repo_list': None,
             'is_registration': self.owner.is_registration,
         })
         if self.user_settings and self.user_settings.has_auth:
@@ -307,6 +317,7 @@ class AddonGitHubNodeSettings(AddonNodeSettingsBase):
                 'github_user_name': self.user_settings.github_user_name,
                 'github_user_url': 'https://github.com/{0}'.format(self.user_settings.github_user_name),
                 'is_owner': owner == user,
+                'owner': self.user_settings.owner.fullname
             })
         return rv
 

@@ -1,5 +1,4 @@
-var AddonHelper = require('addonHelper');
-var $ = require('jquery');
-require('./github-node-cfg.js');
+var githubNodeConfig = require('./githubNodeConfig').githubNodeConfig;
 
-$(window.contextVars.githubSettingsSelector).on('submit', AddonHelper.onSubmitSettings);
+var url = window.contextVars.node.urls.api + 'github/settings/';
+new githubNodeConfig('#githubScope', url);
