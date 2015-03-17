@@ -40,6 +40,16 @@ settings_routes = {
             json_renderer,
         ),
 
+        Rule(
+            [
+                '/project/<pid>/github/repos/',
+                '/project/<pid>/node/<nid>/github/repos/',
+            ],
+            'get',
+            views.config.github_repo_list,
+            json_renderer,
+        ),
+
 
         Rule(
             [
