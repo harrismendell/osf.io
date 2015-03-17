@@ -124,8 +124,16 @@ def github_remove_user_settings(user_addon, **kwargs):
         )
         return {'message': 'reload'}, http.BAD_REQUEST
 
-    return {}
-
+# @must_be_logged_in
+# @must_have_addon('github', 'node')
+# @must_have_addon('github', 'user')
+# @must_have_permission('write')
+# @must_not_be_registration
+# def github_repo_list(auth, node_addon, user_addon, **kwargs):
+#
+#     return {
+#         'buckets': get_repo_drop_down(user_addon)
+#     }
 
 
 @must_have_permission('write')

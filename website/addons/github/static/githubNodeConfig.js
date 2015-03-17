@@ -59,7 +59,7 @@ var ViewModel = function(url, selector) {
         return self.userIsOwner() && self.nodeHasAuth();
     });
     self.allowSelectRepo = ko.pureComputed(function() {
-        return (self.bucketList().length > 0 || self.loadedRepoList()) && (!self.loading());
+        return (self.repoList().length > 0 || self.loadedRepoList()) && (!self.loading());
     });
 
     self.fetchFromServer();
@@ -78,23 +78,23 @@ ViewModel.prototype.selectRepo = function() {
     self.loading(true);
     return $osf.postJSON(
             self.urls().set_repo, {
-                's3_bucket': self.selectedBucket()
+                's3_repo': self.selectedRepo()
             }
         )
         .done(function(response) {
             self.updateFromData(response);
             var filesUrl = window.contextVars.node.urls.web + 'files/';
-            self.changeMessage('Successfully linked S3 bucket \'' + self.currentBucket() + '\'. Go to the <a href="' +
+            self.changeMessage('Successfully linked Github repo \'' + self.currentRepo() + '\'. Go to the <a href="' +
                 filesUrl + '">Files page</a> to view your content.', 'text-success');
             self.loading(false);
         })
         .fail(function(xhr, status, error) {
             self.loading(false);
-            var message = 'Could not change S3 bucket at this time. ' +
+            var message = 'Could not change Github repo at this time. ' +
                 'Please refresh the page. If the problem persists, email ' +
                 '<a href="mailto:support@osf.io">support@osf.io</a>.';
             self.changeMessage(message, 'text-warning');
-            Raven.captureMessage('Could not set S3 bucket', {
+            Raven.captureMessage('Could not set Github repo', {
                 url: self.urls().setRepo,
                 textStatus: status,
                 error: error
@@ -173,6 +173,92 @@ ViewModel.prototype.importAuth = function() {
     });
 };
 
+ViewModel.prototype.createRepo = function(repoName) {
+    var self = this;
+    self.creating(true);
+    return $osf.postJSON(
+        self.urls().createRepo, {
+            repo_name: repoName
+        }
+    ).done(function(response) {
+        repoName = response.user + ' / ' + response.repo;
+        self.creating(false);
+        self.updateFromData(response);
+        self.changeMessage('Successfully created repo \'' + repoName + '\'. You can now select it from the drop down list.', 'text-success');
+        self.repoList().push(repoName);
+        if (!self.loadedRepoList()) {
+            self.fetchRepoList();
+        }
+        self.selectedRepo(repoName);
+        self.selectedRepo();
+        self.repoList();
+        self.showSelect(true);
+    }).fail(function(xhr) {
+        var message = JSON.parse(xhr.responseText).message;
+        self.creating(false);
+        if (!message) {
+            message = 'Looks like that name is taken. Try another name?';
+        }
+        bootbox.confirm({
+            title: 'Duplicate repo name',
+            message: message,
+            callback: function(result) {
+                if (result) {
+                    self.openCreateRepo();
+                }
+            }
+        });
+    });
+};
+
+ViewModel.prototype.openCreateRepo = function() {
+    var self = this;
+
+    var isValidRepo = /^(?!.*(\.\.|-\.))[^.][a-z0-9\d.-]{2,61}[^.]$/;
+
+    bootbox.prompt('Name your new repo', function(repoName) {
+        if (!repoName) {
+            return;
+        } else if (isValidRepo.exec(repoName) == null) {
+            bootbox.confirm({
+                title: 'Invalid repo name',
+                message: 'Sorry, that\'s not a valid repo name. Try another name?',
+                callback: function(result) {
+                    if (result) {
+                        self.openCreateRepo();
+                    }
+                }
+            });
+        } else {
+            self.createRepo(repoName);
+        }
+    });
+};
+
+//ViewModel.prototype.fetchRepoList = function() {
+//    var self = this;
+//    return $.ajax({
+//        url: self.urls().repo_list,
+//        type: 'GET',
+//        dataType: 'json',
+//        success: function(response) {
+//            self.repoList(response.repos);
+//            self.loadedRepoList(true);
+//            self.selectedRepo(self.currentRepo());
+//        },
+//        error: function(xhr, status, error) {
+//            var message = 'Could not retrieve list of Github repos at' +
+//                'this time. Please refresh the page. If the problem persists, email ' +
+//                '<a href="mailto:support@osf.io">support@osf.io</a>.';
+//            self.changeMessage(message, 'text-warning');
+//            Raven.captureMessage('Could not GET s3 repo list', {
+//                url: self.urls().repoList,
+//                textStatus: status,
+//                error: error
+//            });
+//        }
+//    });
+//};
 
 
 ViewModel.prototype.updateFromData = function(settings){
