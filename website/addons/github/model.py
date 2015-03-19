@@ -287,7 +287,7 @@ class AddonGitHubNodeSettings(AddonNodeSettingsBase):
                 (self.user_settings and self.user_settings.owner == user) or False
             ),
             'owner': None,
-            'repo_list': None,
+            'repo_names': None,
             'is_registration': self.owner.is_registration,
         })
         if self.user_settings and self.user_settings.has_auth:
@@ -306,6 +306,7 @@ class AddonGitHubNodeSettings(AddonNodeSettingsBase):
                 rv.update({
                     'repo_names': repo_names,
                 })
+
             rv.update({
                 'node_has_auth': True,
                 'github_user': self.user or '',
