@@ -36,7 +36,7 @@ var noop = function() {};
 var APITestCase = function(cfg) {
     this.description = cfg.description || '';
     this.endpoint = cfg.endpoint || {
-        response: {
+        response: {invoke
             result: {}
         }
     };
