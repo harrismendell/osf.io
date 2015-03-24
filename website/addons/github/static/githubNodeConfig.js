@@ -63,7 +63,6 @@ var ViewModel = function(url, selector) {
         return (self.repoList().length > 0 || self.loadedRepoList()) && (!self.loading());
     });
 
-    self.fetchFromServer();
 };
 
 
@@ -361,7 +360,7 @@ ViewModel.prototype.fetchFromServer = function(callback) {
                 self.updateFromData(settings);
             },
             error: function(xhr, status, error) {
-                var message = 'Could not retrieve S3 settings at ' +
+                var message = 'Could not retrieve Github settings at ' +
                     'this time. Please refresh the page. If the problem persists, email ' +
                     '<a href="mailto:support@osf.io">support@osf.io</a>.';
                 self.changeMessage(message, 'text-warning');
@@ -392,17 +391,37 @@ ViewModel.prototype.changeMessage = function(text, css, timeout) {
 };
 
 
-ViewModel.prototype.importAuth = function() {
+//ViewModel.prototype.importAuth = function() {
+//    var self = this;
+//    $osf.postJSON(
+//        self.urls().importAuth, {}
+//    ).done(function(response) {
+//        self.changeMessage('Successfully imported Github credentials.', 'text-success');
+//        self.updateFromData(response);
+//    }).fail(function(xhr, status, error){
+//        var message = 'Could not import Github credentials at ' +
+//                'this time. Please refresh the page. If the problem persists, email ' +
+//                '<a href="mailto:support@osf.io">support@osf.io</a>.';
+//        self.changeMessage(message, 'text-warning');
+//        Raven.captureMessage('Could not import Github credentials', {
+//            url: self.urls().importAuth,
+//            textStatus: status,
+//            error: error
+//        });
+//    });
+//};
+
+ViewModel.prototype._importAuthConfirm = function() {
     var self = this;
-    $osf.postJSON(
+    return $osf.postJSON(
         self.urls().importAuth, {}
     ).done(function(response) {
         self.changeMessage('Successfully imported Github credentials.', 'text-success');
         self.updateFromData(response);
-    }).fail(function(xhr, status, error){
+    }).fail(function(xhr, status, error) {
         var message = 'Could not import Github credentials at ' +
-                'this time. Please refresh the page. If the problem persists, email ' +
-                '<a href="mailto:support@osf.io">support@osf.io</a>.';
+            'this time. Please refresh the page. If the problem persists, email ' +
+            '<a href="mailto:support@osf.io">support@osf.io</a>.';
         self.changeMessage(message, 'text-warning');
         Raven.captureMessage('Could not import Github credentials', {
             url: self.urls().importAuth,
@@ -410,7 +429,22 @@ ViewModel.prototype.importAuth = function() {
             error: error
         });
     });
+
 };
+
+ViewModel.prototype.importAuth = function() {
+    var self = this;
+    bootbox.confirm({
+        title: 'Import Github credentials?',
+        message: 'Are you sure you want to authorize this project with your Github credentials?',
+        callback: function(confirmed) {
+            if (confirmed) {
+                return self._importAuthConfirm();
+            }
+        }
+    });
+};
+
 
 
 ViewModel.prototype.createCredentials = function() {
@@ -444,6 +478,7 @@ ViewModel.prototype.createCredentials = function() {
 var githubConfig = function(selector, url){
     var viewModel = new ViewModel(url, selector);
     $osf.applyBindings(viewModel, selector);
+    viewModel.fetchFromServer();
 };
 
 module.exports = {
