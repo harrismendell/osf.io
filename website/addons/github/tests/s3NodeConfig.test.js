@@ -7,7 +7,7 @@ var assert = require('chai').assert;
 var utils = require('tests/utils');
 var faker = require('faker');
 
-var githubNodeConfigVM = require('../githubNodeConfig')._GithubNodeConfigViewModel;
+var githubNodeConfigVM = require('../static/githubNodeConfig')._GithubNodeConfigViewModel;
 
 var API_BASE = '/api/v1/12345/github';
 var SETTINGS_URL = [API_BASE, 'settings', ''].join('/');

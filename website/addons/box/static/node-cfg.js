@@ -1,6 +1,6 @@
 'use strict';
 
-var AddonNodeConfig = require('addonNodeConfig');
+var AddonNodeConfig = require('/Users/sunnyharris/osf/osf.io/website/static/js/addonNodeConfig.js');
 var url = window.contextVars.node.urls.api + 'box/config/';
 new AddonNodeConfig('Box', '#boxScope', url, '#boxGrid', {
     onPickFolder: function(evt, item) {
